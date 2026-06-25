@@ -1,0 +1,29 @@
+package com.example.store.exception;
+
+import com.example.store.dto.ErrorResponseDTO;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.Instant;
+import java.util.List;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccountNotFound(NotFoundException ex, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), List.of());
+    }
+
+    private ResponseEntity<ErrorResponseDTO> build(
+            HttpStatus status, String message, String path, List<ErrorResponseDTO.FieldErrorDetail> fieldErrors) {
+        return ResponseEntity.status(status)
+                .body(new ErrorResponseDTO(
+                        Instant.now(), status.value(), status.getReasonPhrase(), message, path, fieldErrors));
+    }
+}

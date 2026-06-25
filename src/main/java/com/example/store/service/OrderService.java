@@ -1,0 +1,104 @@
+package com.example.store.service;
+
+import com.example.store.dto.CursorPageResponse;
+import com.example.store.dto.OrderDTO;
+import com.example.store.dto.OrderRequest;
+import com.example.store.entity.Customer;
+import com.example.store.entity.Order;
+import com.example.store.entity.Product;
+import com.example.store.exception.NotFoundException;
+import com.example.store.mapper.OrderMapper;
+import com.example.store.repository.CustomerRepository;
+import com.example.store.repository.OrderRepository;
+import com.example.store.repository.ProductRepository;
+import com.example.store.util.CursorPaginationUtil;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+    private final OrderMapper orderMapper;
+
+    @Transactional
+    @CacheEvict(value = "orders", allEntries = true)
+    public OrderDTO create(OrderRequest request) {
+        Order order = new Order();
+        order.setDescription(request.getDescription());
+        order.setCustomer(resolveCustomer(request));
+        order.setProducts(resolveProducts(request.getProductIds()));
+        order.getProducts().forEach(product -> product.getOrders().add(order));
+        return orderMapper.orderToOrderDTO(orderRepository.save(order));
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageResponse<OrderDTO> fetchAll(Long cursor, int size) {
+        Pageable pageable = PageRequest.of(0, size);
+        List<Order> items = orderRepository.fetchNextPage(cursor, pageable);
+
+        return CursorPaginationUtil.buildResponse(items, size, Order::getId, orderMapper::ordersToOrderDTOs);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "orders", key = "#id")
+    public OrderDTO fetchOrder(Long id) {
+        return orderMapper.orderToOrderDTO(
+                orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found for ID -" + id)));
+    }
+
+    @Transactional
+    @CacheEvict(value = "orders", key = "#id")
+    public OrderDTO addProduct(Long orderId, Long productId) {
+        Order order = orderRepository
+                .findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        boolean alreadyLinked = order.getProducts().stream()
+                .map(Product::getId)
+                .filter(Objects::nonNull)
+                .anyMatch(id -> id.equals(productId));
+        if (!alreadyLinked) {
+            order.getProducts().add(product);
+            product.getOrders().add(order);
+        }
+
+        return orderMapper.orderToOrderDTO(orderRepository.save(order));
+    }
+
+    private Customer resolveCustomer(OrderRequest request) {
+        return customerRepository
+                .findById(request.getCustomerId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+    }
+
+    private List<Product> resolveProducts(List<Long> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Product> products = productRepository.findAllById(productIds);
+        if (products.size() != productIds.stream().distinct().count()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more products were not found");
+        }
+        return products;
+    }
+}

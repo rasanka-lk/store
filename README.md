@@ -50,16 +50,16 @@ The API is documented in the OpenAPI file OpenAPI.yaml. Note that this spec incl
 
 # Tasks
 
-1. Extend the order endpoint to find a specific order, by ID
-2. Extend the customer endpoint to find customers based on a query string to match a substring of one of the words in their name
-3. Users have complained that in production the GET endpoints can get very slow. The database is unfortunately not co-located with the application server, and there's high latency between the two. Identify if there are any optimisations that can improve performance
+1. Extend the order endpoint to find a specific order, by ID - [x]
+2. Extend the customer endpoint to find customers based on a query string to match a substring of one of the words in their name [x]
+3. Users have complained that in production the GET endpoints can get very slow. The database is unfortunately not co-located with the application server, and there's high latency between the two. Identify if there are any optimisations that can improve performance [x]
 4. Add a new endpoint /products to model products which appear in an order:
-      * A single order contains 1 or more products. 
-      * A product has an ID and a description. 
-      * Add a POST endpoint to create a product
-      * Add a GET endpoint to return all products, and a specific product by ID
-        * In both cases, also return a list of the order IDs which contain those products
-      * Change the orders endpoint to return a list of products contained in the order
+      * A single order contains 1 or more products. [x]
+      * A product has an ID and a description. [x]
+      * Add a POST endpoint to create a product [x]
+      * Add a GET endpoint to return all products, and a specific product by ID [x]
+        * In both cases, also return a list of the order IDs which contain those products [x]
+      * Change the orders endpoint to return a list of products contained in the order [x]
 
 # Bonus points
 1. Implement a CI pipeline on the platform of your choice to build the project and deliver it as a Dockerized image
