@@ -5,10 +5,16 @@ import com.example.store.dto.ProductDTO;
 import com.example.store.dto.ProductRequest;
 import com.example.store.service.ProductService;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/products")
@@ -28,9 +34,14 @@ public class ProductController {
         return productService.fetchProductById(id);
     }
 
+    @Operation(summary = "Create a new product")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Product created"),
+        @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDTO createProduct(@RequestBody ProductRequest request) {
+    public ProductDTO createProduct(@Valid @RequestBody ProductRequest request) {
         return productService.create(request);
     }
 }

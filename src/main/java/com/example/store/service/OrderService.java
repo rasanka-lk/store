@@ -6,7 +6,7 @@ import com.example.store.dto.OrderRequest;
 import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.entity.Product;
-import com.example.store.exception.NotFoundException;
+import com.example.store.exception.EntityNotFoundException;
 import com.example.store.mapper.OrderMapper;
 import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
@@ -19,10 +19,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,24 +57,27 @@ public class OrderService {
     @Transactional(readOnly = true)
     @Cacheable(value = "orders", key = "#id")
     public OrderDTO fetchOrder(Long id) {
-        return orderMapper.orderToOrderDTO(
-                orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found for ID -" + id)));
+        return orderMapper.orderToOrderDTO(orderRepository
+                .findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found for ID -" + id)));
     }
 
     @Transactional
-    @CacheEvict(value = "orders", key = "#id")
+    @CacheEvict(value = "orders", key = "#orderId")
     public OrderDTO addProduct(Long orderId, Long productId) {
         Order order = orderRepository
                 .findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Order not found - " + orderId));
         Product product = productRepository
                 .findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found - " + productId));
 
         boolean alreadyLinked = order.getProducts().stream()
                 .map(Product::getId)
                 .filter(Objects::nonNull)
                 .anyMatch(id -> id.equals(productId));
+
+        // Ignoring already added products
         if (!alreadyLinked) {
             order.getProducts().add(product);
             product.getOrders().add(order);
@@ -88,7 +89,7 @@ public class OrderService {
     private Customer resolveCustomer(OrderRequest request) {
         return customerRepository
                 .findById(request.getCustomerId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found - " + request.getCustomerId()));
     }
 
     private List<Product> resolveProducts(List<Long> productIds) {
@@ -97,7 +98,7 @@ public class OrderService {
         }
         List<Product> products = productRepository.findAllById(productIds);
         if (products.size() != productIds.stream().distinct().count()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more products were not found");
+            throw new EntityNotFoundException("One or more products were not found");
         }
         return products;
     }

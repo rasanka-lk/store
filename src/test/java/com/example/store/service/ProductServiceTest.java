@@ -4,7 +4,7 @@ import com.example.store.dto.CursorPageResponse;
 import com.example.store.dto.ProductDTO;
 import com.example.store.dto.ProductRequest;
 import com.example.store.entity.Product;
-import com.example.store.exception.NotFoundException;
+import com.example.store.exception.EntityNotFoundException;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.ProductRepository;
 
@@ -87,8 +87,8 @@ class ProductServiceTest {
         when(productRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> productService.fetchProductById(99L))
-                .isInstanceOf(NotFoundException.class)
-                .hasMessage("Product not found");
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("Product not found - 99");
     }
 
     @Test

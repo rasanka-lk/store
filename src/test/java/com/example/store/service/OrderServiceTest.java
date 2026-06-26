@@ -5,6 +5,7 @@ import com.example.store.dto.OrderRequest;
 import com.example.store.entity.Customer;
 import com.example.store.entity.Order;
 import com.example.store.entity.Product;
+import com.example.store.exception.EntityNotFoundException;
 import com.example.store.mapper.OrderMapper;
 import com.example.store.repository.CustomerRepository;
 import com.example.store.repository.OrderRepository;
@@ -16,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +100,7 @@ class OrderServiceTest {
         when(productRepository.findAllById(List.of(10L, 20L))).thenReturn(List.of(product));
 
         assertThatThrownBy(() -> orderService.create(request))
-                .isInstanceOf(ResponseStatusException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("One or more products were not found");
     }
 

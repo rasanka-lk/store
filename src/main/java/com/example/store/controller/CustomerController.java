@@ -19,7 +19,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public List<CustomerDTO> getAllCustomers(
+    public List<CustomerDTO> getCustomers(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
             @RequestParam(required = false) String query) {

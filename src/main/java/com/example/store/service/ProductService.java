@@ -4,7 +4,8 @@ import com.example.store.dto.CursorPageResponse;
 import com.example.store.dto.ProductDTO;
 import com.example.store.dto.ProductRequest;
 import com.example.store.entity.Product;
-import com.example.store.exception.NotFoundException;
+import com.example.store.exception.EntityNotFoundException;
+import com.example.store.exception.ValidationException;
 import com.example.store.mapper.ProductMapper;
 import com.example.store.repository.ProductRepository;
 import com.example.store.util.CursorPaginationUtil;
@@ -41,12 +42,16 @@ public class ProductService {
         return productRepository
                 .findById(id)
                 .map(productMapper::productToProductDTO)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found - " + id));
     }
 
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
     public ProductDTO create(ProductRequest request) {
+        if (productRepository.existsByDescriptionIgnoreCase(request.getDescription())) {
+            throw new ValidationException("A product already exists");
+        }
+
         Product product = productMapper.productRequestToProduct(request);
         return productMapper.productToProductDTO(productRepository.save(product));
     }

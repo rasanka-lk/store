@@ -34,17 +34,23 @@ for (let i = 1; i <= CUSTOMER_COUNT; i++) {
 
 // Generate products
 for (let i = 1; i <= PRODUCT_COUNT; i++) {
-    const description = truncate(faker.commerce.productDescription());
-    console.log(`INSERT INTO product (id, description) VALUES (${i}, '${escapeSql(description)}');`);
+    const name = truncate(faker.commerce.productName());
+    console.log(`INSERT INTO product (id, description) VALUES (${i}, '${escapeSql(name)}');`);
 }
 
 // Generate orders and assign 1-5 random products to each order
 for (let i = 1; i <= ORDER_COUNT; i++) {
     const customerId = randomInt(1, CUSTOMER_COUNT);
-    const name = truncate(faker.commerce.productName());
-    console.log(`INSERT INTO "order" (id, description, customer_id) VALUES (${i}, '${escapeSql(name)}', ${customerId});`);
+    const description = truncate(faker.commerce.productDescription());
+    console.log(`INSERT INTO "order" (id, description, customer_id) VALUES (${i}, '${escapeSql(description)}', ${customerId});`);
 
     randomProductIds().forEach((productId) => {
         console.log(`INSERT INTO order_products (order_id, product_id) VALUES (${i}, ${productId});`);
     });
 }
+
+console.log(`SELECT setval(pg_get_serial_sequence('customer', 'id'), COALESCE((SELECT MAX(id) FROM customer), 0) + 1, false);`);
+
+console.log(`SELECT setval(pg_get_serial_sequence('"order"', 'id'), COALESCE((SELECT MAX(id) FROM "order"), 0) + 1, false);`);
+
+console.log(`SELECT setval(pg_get_serial_sequence('product', 'id'), COALESCE((SELECT MAX(id) FROM product), 0) + 1, false);`);
