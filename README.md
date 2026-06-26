@@ -48,12 +48,17 @@ You should be able to run the service using
 # Completed Tasks
 * Added a new endpoint to fetch specific order by id and implemented caching
 * Updated customer endpoint to query by customer name and implemented offset based pagination
+  * Added offset based pagination just for demonstrate purposes
 * Added cursor based pagination for order, product list endpoints to improve performance 
+  * Prefer cursor based pagination since the offset based pagination will have low performance when accessing higher pages
 * Added caching for individual resource endpoints
 * Added new endpoint to create & fetch products
 * Added a new endpoint to add a product to an existing order
 * Updated the orders endpoint to return product ids
 * Added a Dockerfile/docker-compose
+* Added simple validation to product description to demonstrate field validation
+* Added global error handler to centralize exception handling
+* Updated the generateData script to populate product data
 
 # API 
 Latest OpenAPI.yaml can be found in the code
