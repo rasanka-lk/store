@@ -30,8 +30,7 @@ class CustomerServiceTest {
 
     @Test
     void createSavesCustomerAndReturnsDto() {
-        CustomerRequest request = new CustomerRequest();
-        request.setName("John Doe");
+        CustomerRequest request = new CustomerRequest("John Doe");
 
         Customer customer = new Customer();
         customer.setName("John Doe");

@@ -36,8 +36,7 @@ class CustomerControllerTests {
 
     @Test
     void createCustomerReturnsCreatedCustomer() throws Exception {
-        CustomerRequest request = new CustomerRequest();
-        request.setName("John Doe");
+        CustomerRequest request = new CustomerRequest("John Doe");
 
         CustomerDTO response = new CustomerDTO();
         response.setId(1L);

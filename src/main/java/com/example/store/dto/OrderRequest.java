@@ -1,15 +1,15 @@
 package com.example.store.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-@Data
-public class OrderRequest {
-    private String description;
-
-    private Long customerId;
-
-    private List<Long> productIds = new ArrayList<>();
-}
+public record OrderRequest(
+        @NotBlank(message = "Order description is required")
+                @Size(max = 255, message = "Order description must not exceed 255 characters")
+                String description,
+        @NotNull(message = "Customer ID is required") Long customerId,
+        @NotEmpty(message = "Product ID required") Set<Long> productIds) {}

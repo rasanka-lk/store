@@ -14,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,10 +38,7 @@ class OrderControllerTests {
 
     @Test
     void createOrderAcceptsProductIds() throws Exception {
-        OrderRequest request = new OrderRequest();
-        request.setDescription("Test Order");
-        request.setCustomerId(1L);
-        request.setProductIds(List.of(10L, 20L));
+        OrderRequest request = new OrderRequest("Test Order", 1L, Set.of(10L, 20L));
 
         OrderDTO response = new OrderDTO();
         response.setId(100L);

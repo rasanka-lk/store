@@ -3,12 +3,7 @@ package com.example.store.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import lombok.Data;
-
-@Data
-public class ProductRequest {
-
-    @NotBlank(message = "Product description is mandatory")
-    @Size(max = 255, message = "Product description must not exceed 255 characters")
-    private String description;
-}
+public record ProductRequest(
+        @NotBlank(message = "Description is required")
+                @Size(max = 255, message = "Description cannot be more than 255 characters")
+                String description) {}

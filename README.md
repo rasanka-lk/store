@@ -38,6 +38,15 @@ You should be able to run the service using
 ./gradlew bootRun
 ```
 
+# Running all the services
+You should be able to run the application, db and cache using
+```shell
+./gradlew clean bootjar
+docker compose up   
+
+docker compose down
+```
+
 # Data model
 * An order has an ID, a description, and is associated with the customer which made the order.
 * A customer has an ID, a name, and 0 or more orders.

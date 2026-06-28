@@ -37,8 +37,7 @@ class ProductServiceTest {
 
     @Test
     void createSavesProductWithDescriptionOnly() {
-        ProductRequest request = new ProductRequest();
-        request.setDescription("Coffee");
+        ProductRequest request = new ProductRequest("Coffee");
 
         Product productToSave = new Product();
         productToSave.setDescription("Coffee");

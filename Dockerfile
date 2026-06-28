@@ -1,12 +1,3 @@
-# Build stage
-FROM gradle:8.14.3-jdk17 AS builder
-
-WORKDIR /app
-
-COPY . .
-
-RUN gradle clean bootJar --no-daemon
-
 # Runtime stage
 FROM eclipse-temurin:17-jre
 

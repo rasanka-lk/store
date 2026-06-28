@@ -1,8 +1,9 @@
 package com.example.store.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-@Data
-public class CustomerRequest {
-    private String name;
-}
+public record CustomerRequest(
+        @NotBlank(message = "Customer name is required")
+                @Size(max = 255, message = "Customer name must not exceed 255 characters")
+                String name) {}

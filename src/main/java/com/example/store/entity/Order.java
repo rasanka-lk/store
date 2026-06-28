@@ -3,11 +3,9 @@ package com.example.store.entity;
 import jakarta.persistence.*;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -22,14 +20,10 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
 
-    @ManyToMany(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-            fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
             name = "order_products",
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id"))
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<Product> products = new ArrayList<>();
+    private Set<Product> products = new HashSet<>();
 }

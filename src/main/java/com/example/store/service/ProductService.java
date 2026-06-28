@@ -48,7 +48,7 @@ public class ProductService {
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
     public ProductDTO create(ProductRequest request) {
-        if (productRepository.existsByDescriptionIgnoreCase(request.getDescription())) {
+        if (productRepository.existsByDescriptionIgnoreCase(request.description())) {
             throw new ValidationException("A product already exists");
         }
 

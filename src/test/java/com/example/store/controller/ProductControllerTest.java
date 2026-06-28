@@ -36,8 +36,7 @@ class ProductControllerTest {
 
     @Test
     void createProductReturnsCreatedProduct() throws Exception {
-        ProductRequest request = new ProductRequest();
-        request.setDescription("Coffee");
+        ProductRequest request = new ProductRequest("Coffee");
 
         ProductDTO response = new ProductDTO();
         response.setId(1L);

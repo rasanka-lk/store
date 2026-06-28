@@ -22,9 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +37,9 @@ public class OrderService {
     @CacheEvict(value = "orders", allEntries = true)
     public OrderDTO create(OrderRequest request) {
         Order order = new Order();
-        order.setDescription(request.getDescription());
+        order.setDescription(request.description());
         order.setCustomer(resolveCustomer(request));
-        order.setProducts(resolveProducts(request.getProductIds()));
+        order.setProducts(resolveProducts(request.productIds()));
         order.getProducts().forEach(product -> product.getOrders().add(order));
         return orderMapper.orderToOrderDTO(orderRepository.save(order));
     }
@@ -88,18 +86,18 @@ public class OrderService {
 
     private Customer resolveCustomer(OrderRequest request) {
         return customerRepository
-                .findById(request.getCustomerId())
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found - " + request.getCustomerId()));
+                .findById(request.customerId())
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found - " + request.customerId()));
     }
 
-    private List<Product> resolveProducts(List<Long> productIds) {
+    private Set<Product> resolveProducts(Set<Long> productIds) {
         if (productIds == null || productIds.isEmpty()) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
         List<Product> products = productRepository.findAllById(productIds);
         if (products.size() != productIds.stream().distinct().count()) {
             throw new EntityNotFoundException("One or more products were not found");
         }
-        return products;
+        return new HashSet<>(products);
     }
 }

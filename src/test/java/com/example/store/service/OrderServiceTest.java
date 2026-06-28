@@ -20,9 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,21 +55,16 @@ class OrderServiceTest {
         product.setId(10L);
         product.setDescription("Coffee");
 
-        OrderRequest request = new OrderRequest();
-        request.setDescription("Morning order");
-        request.setCustomerId(1L);
-        request.setProductIds(List.of(10L));
+        OrderRequest request = new OrderRequest("Morning order", 1L, Set.of(10L));
 
         OrderDTO mappedResponse = new OrderDTO();
         mappedResponse.setId(100L);
         mappedResponse.setDescription("Morning order");
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(productRepository.findAllById(List.of(10L))).thenReturn(List.of(product));
-        when(orderRepository.save(org.mockito.ArgumentMatchers.any(Order.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-        when(orderMapper.orderToOrderDTO(org.mockito.ArgumentMatchers.any(Order.class)))
-                .thenReturn(mappedResponse);
+        when(productRepository.findAllById(any())).thenReturn(List.of(product));
+        when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderMapper.orderToOrderDTO(any(Order.class))).thenReturn(mappedResponse);
 
         OrderDTO result = orderService.create(request);
 
@@ -88,16 +85,13 @@ class OrderServiceTest {
         Customer customer = new Customer();
         customer.setId(1L);
 
-        OrderRequest request = new OrderRequest();
-        request.setDescription("Morning order");
-        request.setCustomerId(1L);
-        request.setProductIds(List.of(10L, 20L));
+        OrderRequest request = new OrderRequest("Morning order", 1L, Set.of(10L, 20L));
 
         Product product = new Product();
         product.setId(10L);
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(productRepository.findAllById(List.of(10L, 20L))).thenReturn(List.of(product));
+        when(productRepository.findAllById(any())).thenReturn(List.of(product));
 
         assertThatThrownBy(() -> orderService.create(request))
                 .isInstanceOf(EntityNotFoundException.class)
